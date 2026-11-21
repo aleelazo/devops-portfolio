@@ -4,7 +4,11 @@ data:
     {
       "title": "DevOps Portfolio - Monitoreo Kubernetes",
       "uid": "devops-monitoring",
-      "tags": ["devops", "kubernetes", "monitoring"],
+      "tags": [
+        "devops",
+        "kubernetes",
+        "monitoring"
+      ],
       "timezone": "browser",
       "schemaVersion": 38,
       "version": 1,
@@ -14,48 +18,178 @@ data:
           "id": 1,
           "title": "Uso de CPU del nodo (%)",
           "type": "timeseries",
-          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
-          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
           "targets": [
-            {"expr": "100 * (1 - avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))", "legendFormat": "{{instance}}"}
+            {
+              "expr": "100 * (1 - avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
+              "legendFormat": "{{instance}}"
+            }
           ]
         },
         {
           "id": 2,
           "title": "Uso de memoria del nodo (%)",
           "type": "timeseries",
-          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
-          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
           "targets": [
-            {"expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "{{instance}}"}
+            {
+              "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
+              "legendFormat": "{{instance}}"
+            }
           ]
         },
         {
           "id": 3,
           "title": "Uso de disco del nodo (%)",
           "type": "timeseries",
-          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
-          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
           "targets": [
-            {"expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})", "legendFormat": "{{device}}"}
+            {
+              "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})",
+              "legendFormat": "{{device}}"
+            }
           ]
         },
         {
           "id": 4,
           "title": "Memoria utilizada por contenedores",
           "type": "timeseries",
-          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
-          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
           "targets": [
-            {"expr": "container_memory_working_set_bytes", "legendFormat": "{{name}}"}
+            {
+              "expr": "container_memory_working_set_bytes",
+              "legendFormat": "{{name}}"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "row",
+          "title": "Sad Paths & Security Events",
+          "collapsed": false,
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "panels": []
+        },
+        {
+          "id": 6,
+          "title": "Tasa de Peticiones Anómalas (HTTP 401/403/500)",
+          "type": "timeseries",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 17
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(app_requests_total{status=~\"401|403|500\"}[1m])) by (status, endpoint)",
+              "legendFormat": "{{status}} - {{endpoint}}"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "Reinicios de Pods por Namespace",
+          "type": "gauge",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 25
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(changes(kube_pod_container_status_restarts_total{namespace=\"devops-portfolio\"}[15m]))",
+              "instant": true
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            }
+          }
+        },
+        {
+          "id": 8,
+          "title": "Errores de Base de Datos y Excepciones",
+          "type": "table",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 25
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "increase(app_db_errors_total[1h])",
+              "instant": true,
+              "format": "table"
+            }
           ]
         }
       ]
     }
 kind: ConfigMap
 metadata:
-  creationTimestamp: "2026-11-21T06:02:26Z"
   name: grafana-dashboards
   namespace: devops-portfolio
-  resourceVersion: "27379"
-  uid: b4315404-93fd-4c70-8ec6-68bb60373d12
