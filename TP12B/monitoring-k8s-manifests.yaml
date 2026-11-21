@@ -1,4 +1,4 @@
-# STACK DE MONITOREO - DEVOPS PORTFOLIO
+﻿# STACK DE MONITOREO - DEVOPS PORTFOLIO
 # Namespace: devops-portfolio
 
 ---
@@ -128,7 +128,7 @@ data:
             labels:
               severity: critical
             annotations:
-              summary: "Backend caído"
+              summary: "Backend caÃ­do"
               description: "El pod de la API Flask no responde."
 
           - alert: HighCPU
@@ -138,7 +138,7 @@ data:
               severity: warning
             annotations:
               summary: "CPU alta en {{ $labels.instance }}"
-              description: "El uso de CPU del nodo superó el 80%."
+              description: "El uso de CPU del nodo superÃ³ el 80%."
 
           - alert: HighErrorRate
             expr: rate(app_requests_total{status=~"5.."}[5m]) / rate(app_requests_total[5m]) > 0.05
@@ -147,7 +147,7 @@ data:
               severity: warning
             annotations:
               summary: "Tasa de errores HTTP alta"
-              description: "Más del 5% de las solicitudes HTTP están fallando."
+              description: "MÃ¡s del 5% de las solicitudes HTTP estÃ¡n fallando."
 
           - alert: DiskSpaceLow
             expr: (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"}) / node_filesystem_size_bytes{mountpoint="/"} > 0.85
@@ -156,7 +156,7 @@ data:
               severity: warning
             annotations:
               summary: "Espacio en disco bajo"
-              description: "El volumen raíz superó el 85% de uso."
+              description: "El volumen raÃ­z superÃ³ el 85% de uso."
 
 ---
 apiVersion: v1
@@ -363,6 +363,9 @@ spec:
               mountPath: /etc/grafana/provisioning/datasources
             - name: dashboard-provider-config
               mountPath: /etc/grafana/provisioning/dashboards
+            - name: grafana-dashboard-files
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
       volumes:
         - name: grafana-storage
           persistentVolumeClaim:
@@ -373,6 +376,9 @@ spec:
         - name: dashboard-provider-config
           configMap:
             name: grafana-dashboards-provider
+        - name: grafana-dashboard-files
+          configMap:
+            name: grafana-dashboards
 
 ---
 apiVersion: v1
@@ -567,3 +573,64 @@ spec:
       name: scrape
   selector:
     app: cadvisor
+
+---
+apiVersion: v1
+data:
+  devops-dashboard.json: |
+    {
+      "title": "DevOps Portfolio - Monitoreo Kubernetes",
+      "uid": "devops-monitoring",
+      "tags": ["devops", "kubernetes", "monitoring"],
+      "timezone": "browser",
+      "schemaVersion": 38,
+      "version": 1,
+      "refresh": "15s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Uso de CPU del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {"expr": "100 * (1 - avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))", "legendFormat": "{{instance}}"}
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Uso de memoria del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {"expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "{{instance}}"}
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Uso de disco del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {"expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})", "legendFormat": "{{device}}"}
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Memoria utilizada por contenedores",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {"expr": "container_memory_working_set_bytes", "legendFormat": "{{name}}"}
+          ]
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: devops-portfolio
+
