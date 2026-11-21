@@ -1,0 +1,27 @@
+apiVersion: v1
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-service:9090
+        isDefault: true
+        editable: true
+        jsonData:
+          timeInterval: "15s"
+          httpMethod: POST
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"datasources.yaml":"apiVersion: 1\ndatasources:\n  - name: Prometheus\n    type: prometheus\n    access: proxy\n    url: http://prometheus-service:9090\n    isDefault: true\n    editable: true\n    jsonData:\n      timeInterval: \"15s\"\n      httpMethod: POST\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app":"grafana","component":"monitoring"},"name":"grafana-datasources","namespace":"devops-portfolio"}}
+  creationTimestamp: "2026-11-21T05:18:09Z"
+  labels:
+    app: grafana
+    component: monitoring
+  name: grafana-datasources
+  namespace: devops-portfolio
+  resourceVersion: "21917"
+  uid: 9bdab5d1-860e-4e6d-9f13-5cabdb987bb6

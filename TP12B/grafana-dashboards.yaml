@@ -1,0 +1,61 @@
+apiVersion: v1
+data:
+  devops-dashboard.json: |
+    {
+      "title": "DevOps Portfolio - Monitoreo Kubernetes",
+      "uid": "devops-monitoring",
+      "tags": ["devops", "kubernetes", "monitoring"],
+      "timezone": "browser",
+      "schemaVersion": 38,
+      "version": 1,
+      "refresh": "15s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Uso de CPU del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {"expr": "100 * (1 - avg by(instance)(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))", "legendFormat": "{{instance}}"}
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Uso de memoria del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {"expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "legendFormat": "{{instance}}"}
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Uso de disco del nodo (%)",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {"expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})", "legendFormat": "{{device}}"}
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Memoria utilizada por contenedores",
+          "type": "timeseries",
+          "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {"expr": "container_memory_working_set_bytes", "legendFormat": "{{name}}"}
+          ]
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-11-21T06:02:26Z"
+  name: grafana-dashboards
+  namespace: devops-portfolio
+  resourceVersion: "27379"
+  uid: b4315404-93fd-4c70-8ec6-68bb60373d12
